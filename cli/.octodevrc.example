@@ -32,3 +32,127 @@ toolRegistry:
   paths:
     - ./tools/builtins
     - ./tools/custom
+
+# Execution settings for tool sandboxing and safety
+execution:
+  # Timeout settings (milliseconds)
+  defaultTimeout: 30000     # Default 30 seconds
+  maxTimeout: 300000        # Maximum 5 minutes
+  
+  # Per-tool timeout overrides
+  toolTimeouts:
+    file-read: 5000
+    file-write: 5000
+    list-dir: 5000
+    file-stat: 3000
+    file-copy: 10000
+    shell-exec: 30000
+
+# Filesystem access control
+filesystem:
+  # Allowed directories (limit where tools can access files)
+  allowedDirectories:
+    - .
+    - ./projects
+  
+  # File size limits
+  maxFileSize: 10485760        # 10MB
+  maxOutputSize: 1048576       # 1MB
+  
+  # Security options
+  allowSymlinks: false
+
+# Command execution whitelist/blacklist
+commands:
+  # Whitelisted commands (optional - uses defaults if not specified)
+  whitelistedCommands:
+    - ls
+    - cat
+    - grep
+    - find
+    - pwd
+    - echo
+    - head
+    - tail
+    - git
+    - node
+    - npm
+  
+  # Always blocked commands (for safety)
+  blockedCommands:
+    - rm
+    - rmdir
+    - mkfs
+    - dd
+    - mount
+    - umount
+    - passwd
+    - su
+    - sudo
+    - chmod
+    - chown
+  
+  # Security flags
+  allowCommandSubstitution: false
+  allowPipeOperators: true
+
+# Security and monitoring settings
+security:
+  enableAuditLogging: true
+  enableProcessMonitoring: true
+  maxProcessCount: 10
+  maxMemoryUsage: 536870912    # 512MB
+
+# AI Integration Settings (Phase 3)
+ai:
+  enabled: true
+  provider: openai              # Options: openai, anthropic, cohere, bedrock
+
+  # Provider configurations
+  providers:
+    openai:
+      apiKey: ${OPENAI_API_KEY}  # Set via environment variable
+      model: gpt-4o-mini
+      temperature: 0.7
+      maxTokens: 4096
+      topP: 1.0
+
+    anthropic:
+      apiKey: ${ANTHROPIC_API_KEY}
+      model: claude-3-sonnet-20240229
+      temperature: 0.7
+      maxTokens: 2048
+
+  # Command suggestions
+  suggestions:
+    enabled: true
+    count: 3                     # Always show 3 suggestions
+    showConfidence: true         # Show confidence bars
+    minConfidence: 50            # Minimum confidence threshold
+
+  # Response streaming
+  streaming:
+    enabled: true
+    chunkSize: 1                 # Stream token-by-token
+    showSpinner: true            # Show loading indicator
+    timeoutMs: 30000             # 30 second timeout
+
+  # Session memory and history
+  memory:
+    enabled: true
+    retentionDays: 30            # Keep 30 days of history
+    maxHistorySize: 10000        # Store up to 10k commands
+    autoCleanup: true            # Auto-delete old records
+
+  # Context building for AI
+  context:
+    maxExecutions: 100           # Include last 100 executions
+    maxHistoryMessages: 20       # Include last 20 messages
+    includeFileContext: true     # Include file info in context
+    includeDirectoryStructure: false
+
+  # Cost tracking (optional)
+  costTracking:
+    enabled: false
+    warningThreshold: 10         # Warn at $10 per session
+    monthlyBudget: 100           # Optional monthly budget

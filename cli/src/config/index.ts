@@ -9,3 +9,17 @@ export { ProfileManager, getProfileManager, resetProfileManager } from "@/config
 export type { Profile } from "@/config/profile-manager";
 
 export { loadConfig, mergeConfigs } from "@/utils/config-loader";
+
+export {
+  ExecutionConfigSchema,
+  DEFAULT_EXECUTION_CONFIG,
+  ExecutionConfigManager,
+  type ExecutionConfig,
+} from "@/config/execution-config";
+
+export {
+  AIConfigSchema,
+  DEFAULT_AI_CONFIG,
+  AIConfigManager,
+  type AIConfig,
+} from "@/config/ai-config";
