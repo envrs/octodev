@@ -15,6 +15,7 @@ import { useGitHubDeploy } from '~/components/deploy/GitHubDeploy.client';
 import { useGitLabDeploy } from '~/components/deploy/GitLabDeploy.client';
 import { GitHubDeploymentDialog } from '~/components/deploy/GitHubDeploymentDialog';
 import { GitLabDeploymentDialog } from '~/components/deploy/GitLabDeploymentDialog';
+import { VercelPublishDialog } from '~/components/deploy/VercelPublishDialog.client';
 
 interface DeployButtonProps {
   onVercelDeploy?: () => Promise<void>;
@@ -48,6 +49,9 @@ export const DeployButton = ({
   const [gitlabDeploymentFiles, setGitlabDeploymentFiles] = useState<Record<string, string> | null>(null);
   const [githubProjectName, setGithubProjectName] = useState('');
   const [gitlabProjectName, setGitlabProjectName] = useState('');
+  const [showVercelPublishDialog, setShowVercelPublishDialog] = useState(false);
+  const [vercelProjectId, setVercelProjectId] = useState<string>('');
+  const [vercelProjectName, setVercelProjectName] = useState<string>('');
 
   const handleVercelDeployClick = async () => {
     setIsDeploying(true);
@@ -125,6 +129,17 @@ export const DeployButton = ({
     }
   };
 
+  const handleVercelPublishClick = () => {
+    // Extract project ID from the active artifact or deployment state
+    const artifact = workbenchStore.firstArtifact;
+    const projectId = (artifact as any)?.projectId || '';
+    const projectName = (artifact as any)?.projectName || 'Project';
+
+    setVercelProjectId(projectId);
+    setVercelProjectName(projectName);
+    setShowVercelPublishDialog(true);
+  };
+
   return (
     <>
       <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden text-sm">
@@ -191,6 +206,29 @@ export const DeployButton = ({
               />
               <span className="mx-auto">{!vercelConn.user ? 'No Vercel Account Connected' : 'Deploy to Vercel'}</span>
               {vercelConn.user && <VercelDeploymentLink />}
+            </DropdownMenu.Item>
+
+            <DropdownMenu.Separator className="my-1 h-px bg-bolt-elements-borderColor" />
+
+            <DropdownMenu.Item
+              className={classNames(
+                'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
+                {
+                  'opacity-60 cursor-not-allowed': isDeploying || !activePreview || !vercelConn.user,
+                },
+              )}
+              disabled={isDeploying || !activePreview || !vercelConn.user}
+              onClick={handleVercelPublishClick}
+            >
+              <img
+                className="w-5 h-5 bg-black p-1 rounded"
+                height="24"
+                width="24"
+                crossOrigin="anonymous"
+                src="https://cdn.simpleicons.org/vercel/white"
+                alt="vercel"
+              />
+              <span className="mx-auto">{!vercelConn.user ? 'No Vercel Account Connected' : 'Publish to Vercel'}</span>
             </DropdownMenu.Item>
 
             <DropdownMenu.Item
@@ -270,6 +308,16 @@ export const DeployButton = ({
           onClose={() => setShowGitLabDeploymentDialog(false)}
           projectName={gitlabProjectName}
           files={gitlabDeploymentFiles}
+        />
+      )}
+
+      {/* Vercel Publish Dialog */}
+      {showVercelPublishDialog && vercelProjectId && (
+        <VercelPublishDialog
+          isOpen={showVercelPublishDialog}
+          onClose={() => setShowVercelPublishDialog(false)}
+          projectId={vercelProjectId}
+          projectName={vercelProjectName}
         />
       )}
     </>

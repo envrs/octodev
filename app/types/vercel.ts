@@ -63,3 +63,20 @@ export interface VercelProjectInfo {
   url: string;
   chatId: string;
 }
+
+export interface PublishedVersion {
+  projectId: string;
+  projectName: string;
+  deploymentId: string;
+  versionLabel: string;
+  versionTimestamp: string;
+  alias: string;
+  shareableUrl: string;
+  publishedAt: string;
+  isPrivate: boolean;
+  deploymentUrl?: string;
+}
+
+export interface PublishHistory {
+  [projectId: string]: PublishedVersion[];
+}
