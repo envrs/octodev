@@ -55,14 +55,14 @@ export function UserMessage({ content, parts }: UserMessageProps) {
             <div className="i-ph:user-fill text-accent-500 text-2xl" />
           )}
         </div>
-        <div className="flex flex-col gap-4 bg-accent-500/10 backdrop-blur-sm p-3 py-3 w-auto rounded-lg mr-auto">
+        <div className="flex flex-col gap-4 bg-accent-500/8 backdrop-blur-md p-4 py-3 w-auto rounded-lg mr-auto border border-accent-500/10">
           {textContent && <Markdown html>{textContent}</Markdown>}
           {images.map((item, index) => (
             <img
               key={index}
               src={`data:${item.mimeType};base64,${item.data}`}
               alt={`Image ${index + 1}`}
-              className="max-w-full h-auto rounded-lg"
+              className="max-w-full h-auto rounded-md border border-bolt-elements-borderColor"
               style={{ maxHeight: '512px', objectFit: 'contain' }}
             />
           ))}
@@ -74,10 +74,10 @@ export function UserMessage({ content, parts }: UserMessageProps) {
   const textContent = stripMetadata(content);
 
   return (
-    <div className="flex flex-col bg-accent-500/10 backdrop-blur-sm px-5 p-3.5 w-auto rounded-lg ml-auto">
+    <div className="flex flex-col bg-accent-500/8 backdrop-blur-md px-5 p-3.5 w-auto rounded-lg ml-auto border border-accent-500/10">
       <div className="flex gap-3.5 mb-4">
         {images.map((item, index) => (
-          <div className="relative flex rounded-lg border border-bolt-elements-borderColor overflow-hidden">
+          <div className="relative flex rounded-md border border-bolt-elements-borderColor overflow-hidden">
             <div className="h-16 w-16 bg-transparent outline-none">
               <img
                 key={index}
