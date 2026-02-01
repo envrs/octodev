@@ -1,12 +1,39 @@
 {
-  "name": "octodev-cli",
+  "name": "@octodev-bot/octodev-cli",
   "version": "0.1.0",
-  "description": "Standalone CLI for octodev - AI-powered development tool",
+  "description": "Standalone CLI for octodev - AI-powered development tool with LLM integration, tool execution, and TUI shell",
   "type": "module",
   "main": "./dist/bin/cli.js",
   "bin": {
     "octodev": "./dist/bin/cli.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khulnasoft-bot/octodev.git",
+    "directory": "cli"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "development",
+    "llm",
+    "tui",
+    "terminal",
+    "shell",
+    "automation",
+    "tool-execution"
+  ],
+  "author": "khulnasoft-bot",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "tsx src/bin/cli.ts",
     "build": "tsc",
@@ -22,7 +49,15 @@
     "test:integration": "vitest src/__tests__/integration",
     "test:security": "vitest src/__tests__/security",
     "test:stress": "vitest src/__tests__/stress",
-    "test:all": "vitest run --reporter=verbose"
+    "test:all": "vitest run --reporter=verbose",
+    "build:binaries": "bash scripts/build-binaries.sh",
+    "build:docker": "docker build -t @octodev-bot/octodev-cli:latest -f build/Dockerfile .",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "release:patch": "standard-version --release-as patch",
+    "publish:npm": "npm publish",
+    "publish:github": "npm publish --registry https://npm.pkg.github.com"
   },
   "dependencies": {
     "commander": "^12.1.0",
@@ -51,7 +86,11 @@
     "vitest": "^1.0.4",
     "@vitest/ui": "^1.0.4",
     "@testing-library/react": "^14.1.2",
-    "@vitest/coverage-v8": "^1.0.4"
+    "@vitest/coverage-v8": "^1.0.4",
+    "pkg": "^5.11.0",
+    "standard-version": "^9.5.0",
+    "husky": "^8.0.3",
+    "commitizen": "^4.3.0"
   },
   "engines": {
     "node": ">=18.0.0"

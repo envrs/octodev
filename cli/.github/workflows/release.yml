@@ -1,0 +1,176 @@
+name: Release and Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./cli
+      - name: Run tests
+        run: npm run test:all
+        working-directory: ./cli
+      - name: Generate coverage
+        run: npm run test:coverage
+        working-directory: ./cli
+      - uses: codecov/codecov-action@v3
+        with:
+          directory: ./cli
+
+  build-binaries:
+    name: Build Binaries
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./cli
+      - name: Build TypeScript
+        run: npm run build
+        working-directory: ./cli
+      - name: Build binaries
+        run: npm run build:binaries
+        working-directory: ./cli
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries-${{ matrix.os }}
+          path: cli/dist/bin/
+
+  build-docker:
+    name: Build Docker Image
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./cli/build
+          file: ./cli/build/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/octodev-cli:latest
+            ghcr.io/${{ github.repository_owner }}/octodev-cli:${{ github.ref_name }}
+
+  create-release:
+    name: Create GitHub Release
+    needs: [build-binaries, build-docker]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/binaries-*/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-npm:
+    name: Publish to npm
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./cli
+      - name: Build
+        run: npm run build
+        working-directory: ./cli
+      - name: Publish to npm
+        run: npm publish --access public
+        working-directory: ./cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-github-packages:
+    name: Publish to GitHub Packages
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@octodev-bot'
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./cli
+      - name: Build
+        run: npm run build
+        working-directory: ./cli
+      - name: Publish to GitHub Packages
+        run: npm publish
+        working-directory: ./cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-changelog:
+    name: Update CHANGELOG
+    needs: [publish-npm, publish-github-packages]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./cli
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: update CHANGELOG.md for ${{ github.ref_name }}" || true
+          git push
+        working-directory: ./cli
