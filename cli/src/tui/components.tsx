@@ -72,31 +72,68 @@ interface SidebarProps {
   profile: string;
   activeTool?: string;
   isConnected: boolean;
+  aiConnected?: boolean;
+  sessionTokens?: number;
+  sessionCost?: number;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ profile, activeTool, isConnected }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  profile,
+  activeTool,
+  isConnected,
+  aiConnected = false,
+  sessionTokens = 0,
+  sessionCost = 0,
+}) => {
   return (
-    <Box flexDirection="column" width={25} marginRight={2}>
+    <Box flexDirection="column" width={30} marginRight={2}>
       <Box marginBottom={1}>
-        <Text bold underline>
+        <Text bold underline color="cyan">
           Profile
         </Text>
       </Box>
       <Text>{profile}</Text>
 
       <Box marginTop={2} marginBottom={1}>
-        <Text bold underline>
-          Status
+        <Text bold underline color="cyan">
+          Connection
         </Text>
       </Box>
-      <Text color={isConnected ? "green" : "red"}>{isConnected ? "✓ Connected" : "✗ Offline"}</Text>
+      <Box flexDirection="column">
+        <Box>
+          <Text color={isConnected ? "green" : "red"}>
+            {isConnected ? "✓" : "✗"}
+          </Text>
+          <Text marginLeft={1}>{isConnected ? "Connected" : "Offline"}</Text>
+        </Box>
+        <Box marginTop={1}>
+          <Text color={aiConnected ? "green" : "yellow"}>
+            {aiConnected ? "✓" : "✗"}
+          </Text>
+          <Text marginLeft={1}>{aiConnected ? "AI Ready" : "AI Offline"}</Text>
+        </Box>
+      </Box>
 
       <Box marginTop={2} marginBottom={1}>
-        <Text bold underline>
+        <Text bold underline color="cyan">
           Active Tool
         </Text>
       </Box>
       <Text>{activeTool || "None"}</Text>
+
+      {aiConnected && (
+        <>
+          <Box marginTop={2} marginBottom={1}>
+            <Text bold underline color="magenta">
+              Session Stats
+            </Text>
+          </Box>
+          <Box flexDirection="column">
+            <Text dimColor>Tokens: {sessionTokens}</Text>
+            <Text dimColor marginTop={1}>Cost: ${sessionCost.toFixed(4)}</Text>
+          </Box>
+        </>
+      )}
     </Box>
   );
 };
@@ -104,14 +141,48 @@ export const Sidebar: React.FC<SidebarProps> = ({ profile, activeTool, isConnect
 interface StatusBarProps {
   connectionStatus: boolean;
   mode: string;
+  aiConnected?: boolean;
+  isStreaming?: boolean;
+  lastCommand?: string;
+  executionTime?: number;
 }
 
-export const StatusBar: React.FC<StatusBarProps> = ({ connectionStatus, mode }) => {
+export const StatusBar: React.FC<StatusBarProps> = ({
+  connectionStatus,
+  mode,
+  aiConnected = false,
+  isStreaming = false,
+  lastCommand,
+  executionTime = 0,
+}) => {
   return (
     <Box marginTop={1} paddingTop={1} borderStyle="single" borderTop>
-      <Text bold dimColor>
-        [{connectionStatus ? "Connected" : "Offline"}] | Mode: {mode}
-      </Text>
+      <Box flexDirection="column" width="100%">
+        <Box>
+          <Text bold dimColor>
+            [{connectionStatus ? "✓" : "✗"} Connected]
+          </Text>
+          <Text dimColor marginLeft={2}>
+            [AI: {aiConnected ? "✓" : "✗"}]
+          </Text>
+          <Text dimColor marginLeft={2}>
+            Mode: {mode}
+          </Text>
+          {isStreaming && (
+            <Text color="cyan" marginLeft={2}>
+              [Streaming...]
+            </Text>
+          )}
+        </Box>
+        {lastCommand && (
+          <Box marginTop={1}>
+            <Text dimColor>
+              Last: {lastCommand}
+              {executionTime > 0 && ` (${executionTime}ms)`}
+            </Text>
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 };
