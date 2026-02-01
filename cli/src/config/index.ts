@@ -16,3 +16,10 @@ export {
   ExecutionConfigManager,
   type ExecutionConfig,
 } from "@/config/execution-config";
+
+export {
+  AIConfigSchema,
+  DEFAULT_AI_CONFIG,
+  AIConfigManager,
+  type AIConfig,
+} from "@/config/ai-config";

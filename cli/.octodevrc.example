@@ -102,3 +102,57 @@ security:
   enableProcessMonitoring: true
   maxProcessCount: 10
   maxMemoryUsage: 536870912    # 512MB
+
+# AI Integration Settings (Phase 3)
+ai:
+  enabled: true
+  provider: openai              # Options: openai, anthropic, cohere, bedrock
+
+  # Provider configurations
+  providers:
+    openai:
+      apiKey: ${OPENAI_API_KEY}  # Set via environment variable
+      model: gpt-4o-mini
+      temperature: 0.7
+      maxTokens: 4096
+      topP: 1.0
+
+    anthropic:
+      apiKey: ${ANTHROPIC_API_KEY}
+      model: claude-3-sonnet-20240229
+      temperature: 0.7
+      maxTokens: 2048
+
+  # Command suggestions
+  suggestions:
+    enabled: true
+    count: 3                     # Always show 3 suggestions
+    showConfidence: true         # Show confidence bars
+    minConfidence: 50            # Minimum confidence threshold
+
+  # Response streaming
+  streaming:
+    enabled: true
+    chunkSize: 1                 # Stream token-by-token
+    showSpinner: true            # Show loading indicator
+    timeoutMs: 30000             # 30 second timeout
+
+  # Session memory and history
+  memory:
+    enabled: true
+    retentionDays: 30            # Keep 30 days of history
+    maxHistorySize: 10000        # Store up to 10k commands
+    autoCleanup: true            # Auto-delete old records
+
+  # Context building for AI
+  context:
+    maxExecutions: 100           # Include last 100 executions
+    maxHistoryMessages: 20       # Include last 20 messages
+    includeFileContext: true     # Include file info in context
+    includeDirectoryStructure: false
+
+  # Cost tracking (optional)
+  costTracking:
+    enabled: false
+    warningThreshold: 10         # Warn at $10 per session
+    monthlyBudget: 100           # Optional monthly budget
