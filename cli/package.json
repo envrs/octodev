@@ -13,7 +13,16 @@
     "start": "node dist/bin/cli.js",
     "shell": "tsx src/bin/shell.ts",
     "lint": "eslint src --ext .ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:unit": "vitest src/__tests__/unit",
+    "test:integration": "vitest src/__tests__/integration",
+    "test:security": "vitest src/__tests__/security",
+    "test:stress": "vitest src/__tests__/stress",
+    "test:all": "vitest run --reporter=verbose"
   },
   "dependencies": {
     "commander": "^12.1.0",
@@ -38,7 +47,11 @@
     "@types/js-yaml": "^4.0.9",
     "@types/better-sqlite3": "^7.6.8",
     "typescript": "^5.3.3",
-    "tsx": "^4.7.0"
+    "tsx": "^4.7.0",
+    "vitest": "^1.0.4",
+    "@vitest/ui": "^1.0.4",
+    "@testing-library/react": "^14.1.2",
+    "@vitest/coverage-v8": "^1.0.4"
   },
   "engines": {
     "node": ">=18.0.0"
