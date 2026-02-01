@@ -32,3 +32,73 @@ toolRegistry:
   paths:
     - ./tools/builtins
     - ./tools/custom
+
+# Execution settings for tool sandboxing and safety
+execution:
+  # Timeout settings (milliseconds)
+  defaultTimeout: 30000     # Default 30 seconds
+  maxTimeout: 300000        # Maximum 5 minutes
+  
+  # Per-tool timeout overrides
+  toolTimeouts:
+    file-read: 5000
+    file-write: 5000
+    list-dir: 5000
+    file-stat: 3000
+    file-copy: 10000
+    shell-exec: 30000
+
+# Filesystem access control
+filesystem:
+  # Allowed directories (limit where tools can access files)
+  allowedDirectories:
+    - .
+    - ./projects
+  
+  # File size limits
+  maxFileSize: 10485760        # 10MB
+  maxOutputSize: 1048576       # 1MB
+  
+  # Security options
+  allowSymlinks: false
+
+# Command execution whitelist/blacklist
+commands:
+  # Whitelisted commands (optional - uses defaults if not specified)
+  whitelistedCommands:
+    - ls
+    - cat
+    - grep
+    - find
+    - pwd
+    - echo
+    - head
+    - tail
+    - git
+    - node
+    - npm
+  
+  # Always blocked commands (for safety)
+  blockedCommands:
+    - rm
+    - rmdir
+    - mkfs
+    - dd
+    - mount
+    - umount
+    - passwd
+    - su
+    - sudo
+    - chmod
+    - chown
+  
+  # Security flags
+  allowCommandSubstitution: false
+  allowPipeOperators: true
+
+# Security and monitoring settings
+security:
+  enableAuditLogging: true
+  enableProcessMonitoring: true
+  maxProcessCount: 10
+  maxMemoryUsage: 536870912    # 512MB

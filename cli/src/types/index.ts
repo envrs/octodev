@@ -63,3 +63,29 @@ export interface CLIState {
   isConnected: boolean;
   sessionId: string;
 }
+
+// Execution Context with timeouts
+export interface ExecutionContext {
+  timeout?: number; // milliseconds
+  workingDir?: string;
+  environment?: Record<string, string>;
+  userId?: string;
+  sessionId: string;
+}
+
+// Tool execution metadata
+export interface ToolMetadata {
+  executedAt: Date;
+  duration: number;
+  status: 'success' | 'failure' | 'timeout';
+  errorCode?: string;
+}
+
+// Complete execution result
+export interface CompleteExecutionResult extends ToolExecutionResult {
+  metadata?: ToolMetadata;
+  output?: {
+    truncated: boolean;
+    fullPath?: string;
+  };
+}
