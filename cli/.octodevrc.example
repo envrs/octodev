@@ -1,0 +1,34 @@
+version: "0.1.0"
+profile: default
+
+profiles:
+  default:
+    projectDir: "./projects"
+    logLevel: info
+    aiProvider: openai
+    tools:
+      - file-read
+      - file-write
+      - list-dir
+
+  development:
+    projectDir: "./projects-dev"
+    logLevel: debug
+    aiProvider: openai
+    tools:
+      - file-read
+      - file-write
+      - list-dir
+
+  production:
+    projectDir: "/var/octodev/projects"
+    logLevel: warn
+    aiProvider: openai
+    tools:
+      - file-read
+      - list-dir
+
+toolRegistry:
+  paths:
+    - ./tools/builtins
+    - ./tools/custom
