@@ -221,6 +221,93 @@ export class SessionMemory {
   }
 
   /**
+   * Record command with AI metadata
+   */
+  recordCommand(options: {
+    input: string;
+    command: string;
+    toolName: string;
+    success: boolean;
+    output: string;
+    errorMessage?: string;
+    aiGenerated?: boolean;
+    confidence?: number;
+  }): void {
+    this.db.recordCommand(
+      this.sessionId,
+      options.input,
+      options.toolName,
+      options.success,
+      0,
+      options.output
+    );
+
+    this.commandCount++;
+    if (options.success) {
+      this.successCount++;
+    }
+
+    logger.debug(
+      {
+        tool: options.toolName,
+        success: options.success,
+        aiGenerated: options.aiGenerated,
+        confidence: options.confidence,
+      },
+      "Command recorded"
+    );
+  }
+
+  /**
+   * Record success for learning
+   */
+  recordSuccess(command: string, confidence: number): void {
+    logger.debug({ command, confidence }, "Success recorded for learning");
+    // Could be used to boost confidence for similar patterns
+  }
+
+  /**
+   * Record failure for learning
+   */
+  recordFailure(command: string, error: string): void {
+    logger.debug({ command, error }, "Failure recorded for learning");
+    // Could be used to adjust confidence for similar patterns
+  }
+
+  /**
+   * Record macro
+   */
+  recordMacro(macro: { id: string; name: string; commands: string[]; description?: string }): Promise<void> {
+    return Promise.resolve(this.db.saveMacro(macro.name, macro.commands.join(";"), macro.description));
+  }
+
+  /**
+   * Get macros
+   */
+  async getMacros(): Promise<any[]> {
+    return this.db.getMacros();
+  }
+
+  /**
+   * Delete macro
+   */
+  async deleteMacro(id: string): Promise<void> {
+    // This would require database support for deletion by ID
+    logger.debug({ id }, "Macro deletion requested");
+  }
+
+  /**
+   * Get session metrics for cost tracking
+   */
+  getSessionMetrics() {
+    return {
+      totalTokens: 0, // Would be set by AI engine
+      totalCost: 0,   // Would be calculated by AI engine
+      successRate: this.commandCount > 0 ? (this.successCount / this.commandCount) * 100 : 0,
+    };
+  }
+
+  /**
    * End session and cleanup
    */
   endSession(): void {
